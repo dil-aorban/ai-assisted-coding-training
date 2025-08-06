@@ -2,7 +2,15 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TodoProvider } from '../contexts/TodoContext';
 import { useTodo } from '../hooks/useTodo';
-// import { act } from 'react-dom/test-utils';
+import { vi, beforeEach } from 'vitest';
+import * as sessionStorageUtils from '../utils/sessionStorage';
+
+// Mock the sessionStorage utilities to avoid interference between tests
+vi.mock('../utils/sessionStorage', () => ({
+  loadTodos: vi.fn(),
+  saveTodos: vi.fn(),
+  clearTodos: vi.fn(),
+}));
 
 const TestComponent = () => {
   const { todos, addTodo, toggleTodoCompletion, deleteTodo } = useTodo();
@@ -33,6 +41,16 @@ const TestComponent = () => {
 };
 
 describe('TodoContext', () => {
+  const mockLoadTodos = vi.mocked(sessionStorageUtils.loadTodos);
+  const mockSaveTodos = vi.mocked(sessionStorageUtils.saveTodos);
+
+  beforeEach(() => {
+    // Reset mocks and ensure clean state
+    vi.clearAllMocks();
+    mockLoadTodos.mockReturnValue([]);
+    mockSaveTodos.mockReturnValue(true);
+  });
+
   it('provides empty todos array initially', () => {
     render(
       <TodoProvider>
@@ -70,15 +88,11 @@ describe('TodoContext', () => {
 
     await user.click(screen.getByTestId('add-todo'));
 
-    const todoId =
-      screen.getByTestId('todo-count').textContent === '1'
-        ? screen
-            .getByText('Test Todo')
-            .closest('[data-testid^="todo-item-"]')
-            ?.getAttribute('data-testid')
-            ?.replace('todo-item-', '')
-        : '';
+    // Get the first todo's ID
+    const todoItem = screen.getByText('Test Todo').closest('[data-testid^="todo-item-"]');
+    const todoId = todoItem?.getAttribute('data-testid')?.replace('todo-item-', '');
 
+    expect(todoId).toBeTruthy();
     expect(screen.getByTestId(`todo-completed-${todoId}`).textContent).toBe('Not completed');
 
     await user.click(screen.getByTestId(`toggle-${todoId}`));
@@ -99,14 +113,11 @@ describe('TodoContext', () => {
 
     expect(screen.getByTestId('todo-count').textContent).toBe('1');
 
-    const todoId =
-      screen.getByTestId('todo-count').textContent === '1'
-        ? screen
-            .getByText('Test Todo')
-            .closest('[data-testid^="todo-item-"]')
-            ?.getAttribute('data-testid')
-            ?.replace('todo-item-', '')
-        : '';
+    // Get the first todo's ID
+    const todoItem = screen.getByText('Test Todo').closest('[data-testid^="todo-item-"]');
+    const todoId = todoItem?.getAttribute('data-testid')?.replace('todo-item-', '');
+
+    expect(todoId).toBeTruthy();
 
     await user.click(screen.getByTestId(`delete-${todoId}`));
 

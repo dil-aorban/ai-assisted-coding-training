@@ -1,10 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { Todo } from '../types/Todo';
 import { v4 as uuidv4 } from 'uuid';
 import { TodoContext } from './TodoContextType';
+import { loadTodos, saveTodos } from '../utils/sessionStorage';
 
 export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  // Initialize state with todos from sessionStorage
+  const [todos, setTodos] = useState<Todo[]>(() => loadTodos());
+  const [storageError, setStorageError] = useState<string | null>(null);
+  const isFirstRender = useRef(true);
+
+  // Persist todos to sessionStorage whenever they change
+  useEffect(() => {
+    // Skip saving on initial render (when loading from storage)
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    const success = saveTodos(todos);
+    if (!success) {
+      setStorageError('Storage quota exceeded – your latest changes may not be saved.');
+      // Clear error after 5 seconds
+      const timeoutId = setTimeout(() => setStorageError(null), 5000);
+      return () => clearTimeout(timeoutId);
+    } else {
+      // Clear error if save was successful
+      setStorageError(null);
+    }
+  }, [todos]);
 
   const addTodo = (title: string, description: string) => {
     const newTodo: Todo = {
@@ -30,7 +54,9 @@ export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <TodoContext.Provider value={{ todos, addTodo, editTodo, toggleTodoCompletion, deleteTodo }}>
+    <TodoContext.Provider
+      value={{ todos, addTodo, editTodo, toggleTodoCompletion, deleteTodo, storageError }}
+    >
       {children}
     </TodoContext.Provider>
   );

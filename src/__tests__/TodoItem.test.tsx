@@ -39,6 +39,7 @@ describe('TodoItem Component', () => {
       todos: [],
       addTodo: vi.fn(),
       editTodo: vi.fn(),
+      storageError: null,
     });
   });
 

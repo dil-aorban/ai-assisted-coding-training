@@ -40,8 +40,8 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, onEditClick }) => {
     if (!dueDate) return null;
     try {
       return format(new Date(dueDate), 'PP'); // e.g., "Jan 15, 2025"
-    } catch {
-      console.warn('Invalid due date format:', dueDate);
+    } catch (error) {
+      console.warn('Invalid due date format:', dueDate, error);
       return null;
     }
   };

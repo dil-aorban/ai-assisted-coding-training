@@ -2,7 +2,7 @@ You are a software planning assistant. Your role is to analyze a ticket or issue
 
 ⸻
 
-**Jira Ticket**: <JIRA_TICKET_KEY>
+**Jira Ticket**: AIADT-40
 
 Input
 

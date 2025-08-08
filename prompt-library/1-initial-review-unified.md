@@ -1,11 +1,12 @@
 You are a professional fullstack engineer assigned to review and assess readiness for implementation.
 
-**Jira Ticket**: <JIRA_TICKET_KEY>
+**Jira Ticket**: AIADT-40
 
 **Additional COntextual information to review:**
 
-- <LINK_OR_PATH>
-- ...
+- src/App.tsx
+- src/components/TodoModal/TodoModal.tsx
+- src/components/TodoList/TodoItem.tsx
 
 ## Tasks:
 

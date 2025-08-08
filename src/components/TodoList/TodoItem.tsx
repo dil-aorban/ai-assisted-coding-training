@@ -1,5 +1,14 @@
 import React from 'react';
-import { ListItem, ListItemText, IconButton, Checkbox, Divider, Typography } from '@mui/material';
+import {
+  ListItem,
+  ListItemText,
+  IconButton,
+  Checkbox,
+  Divider,
+  Typography,
+  Box,
+} from '@mui/material';
+import { format } from 'date-fns';
 import type { Todo } from '../../types/Todo';
 import { useTodo } from '../../hooks/useTodo';
 
@@ -10,6 +19,34 @@ interface TodoItemProps {
 
 export const TodoItem: React.FC<TodoItemProps> = ({ todo, onEditClick }) => {
   const { toggleTodoCompletion, deleteTodo } = useTodo();
+
+  const getDueDateColor = (dueDate?: string) => {
+    if (!dueDate) return 'inherit';
+
+    const due = new Date(dueDate);
+    const today = new Date();
+
+    // Create new Date objects with time set to midnight for comparison
+    const normalizedDue = new Date(due.getFullYear(), due.getMonth(), due.getDate());
+    const normalizedToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+    const isOverdue = normalizedDue < normalizedToday;
+    const isDueToday = normalizedDue.getTime() === normalizedToday.getTime();
+
+    if (isOverdue) return 'error.main';
+    if (isDueToday) return 'warning.main';
+    return 'text.secondary';
+  };
+
+  const formatDueDate = (dueDate?: string) => {
+    if (!dueDate) return null;
+    try {
+      return format(new Date(dueDate), 'PP'); // e.g., "Jan 15, 2025"
+    } catch (error) {
+      console.warn('Invalid due date format:', dueDate, error);
+      return null;
+    }
+  };
 
   return (
     <>
@@ -62,15 +99,30 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, onEditClick }) => {
             </Typography>
           }
           secondary={
-            <Typography
-              variant="body2"
-              sx={{
-                color: 'text.secondary',
-                textDecoration: todo.completed ? 'line-through' : 'none',
-              }}
-            >
-              {todo.description}
-            </Typography>
+            <Box>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                  textDecoration: todo.completed ? 'line-through' : 'none',
+                }}
+              >
+                {todo.description}
+              </Typography>
+              {todo.dueDate && (
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: getDueDateColor(todo.dueDate),
+                    fontWeight: 500,
+                    display: 'block',
+                    mt: 0.5,
+                  }}
+                >
+                  Due: {formatDueDate(todo.dueDate)}
+                </Typography>
+              )}
+            </Box>
           }
         />
       </ListItem>

@@ -2,7 +2,15 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TodoProvider } from '../contexts/TodoContext';
 import { useTodo } from '../hooks/useTodo';
-// import { act } from 'react-dom/test-utils';
+import { vi, beforeEach } from 'vitest';
+import * as sessionStorageUtils from '../utils/sessionStorage';
+
+// Mock the sessionStorage utilities to avoid interference between tests
+vi.mock('../utils/sessionStorage', () => ({
+  loadTodos: vi.fn(),
+  saveTodos: vi.fn(),
+  clearTodos: vi.fn(),
+}));
 
 const TestComponent = () => {
   const { todos, addTodo, toggleTodoCompletion, deleteTodo } = useTodo();
@@ -12,6 +20,14 @@ const TestComponent = () => {
       <button data-testid="add-todo" onClick={() => addTodo('Test Todo', 'Test Description')}>
         Add Todo
       </button>
+      <button
+        data-testid="add-todo-with-due-date"
+        onClick={() =>
+          addTodo('Test Todo with Due Date', 'Test Description', '2025-12-31T00:00:00.000Z')
+        }
+      >
+        Add Todo with Due Date
+      </button>
       <div data-testid="todo-count">{todos.length}</div>
       {todos.map(todo => (
         <div key={todo.id} data-testid={`todo-item-${todo.id}`}>
@@ -20,6 +36,7 @@ const TestComponent = () => {
           <span data-testid={`todo-completed-${todo.id}`}>
             {todo.completed ? 'Completed' : 'Not completed'}
           </span>
+          <span data-testid={`todo-due-date-${todo.id}`}>{todo.dueDate || 'No due date'}</span>
           <button data-testid={`toggle-${todo.id}`} onClick={() => toggleTodoCompletion(todo.id)}>
             Toggle
           </button>
@@ -33,6 +50,16 @@ const TestComponent = () => {
 };
 
 describe('TodoContext', () => {
+  const mockLoadTodos = vi.mocked(sessionStorageUtils.loadTodos);
+  const mockSaveTodos = vi.mocked(sessionStorageUtils.saveTodos);
+
+  beforeEach(() => {
+    // Reset mocks and ensure clean state
+    vi.clearAllMocks();
+    mockLoadTodos.mockReturnValue([]);
+    mockSaveTodos.mockReturnValue(true);
+  });
+
   it('provides empty todos array initially', () => {
     render(
       <TodoProvider>
@@ -70,15 +97,11 @@ describe('TodoContext', () => {
 
     await user.click(screen.getByTestId('add-todo'));
 
-    const todoId =
-      screen.getByTestId('todo-count').textContent === '1'
-        ? screen
-            .getByText('Test Todo')
-            .closest('[data-testid^="todo-item-"]')
-            ?.getAttribute('data-testid')
-            ?.replace('todo-item-', '')
-        : '';
+    // Get the first todo's ID
+    const todoItem = screen.getByText('Test Todo').closest('[data-testid^="todo-item-"]');
+    const todoId = todoItem?.getAttribute('data-testid')?.replace('todo-item-', '');
 
+    expect(todoId).toBeTruthy();
     expect(screen.getByTestId(`todo-completed-${todoId}`).textContent).toBe('Not completed');
 
     await user.click(screen.getByTestId(`toggle-${todoId}`));
@@ -99,17 +122,61 @@ describe('TodoContext', () => {
 
     expect(screen.getByTestId('todo-count').textContent).toBe('1');
 
-    const todoId =
-      screen.getByTestId('todo-count').textContent === '1'
-        ? screen
-            .getByText('Test Todo')
-            .closest('[data-testid^="todo-item-"]')
-            ?.getAttribute('data-testid')
-            ?.replace('todo-item-', '')
-        : '';
+    // Get the first todo's ID
+    const todoItem = screen.getByText('Test Todo').closest('[data-testid^="todo-item-"]');
+    const todoId = todoItem?.getAttribute('data-testid')?.replace('todo-item-', '');
+
+    expect(todoId).toBeTruthy();
 
     await user.click(screen.getByTestId(`delete-${todoId}`));
 
     expect(screen.getByTestId('todo-count').textContent).toBe('0');
+  });
+
+  it('can add a todo with due date', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <TodoProvider>
+        <TestComponent />
+      </TodoProvider>
+    );
+
+    await user.click(screen.getByTestId('add-todo-with-due-date'));
+
+    expect(screen.getByTestId('todo-count').textContent).toBe('1');
+    expect(screen.getByText('Test Todo with Due Date')).toBeInTheDocument();
+
+    // Get the first todo's ID and check due date
+    const todoItem = screen
+      .getByText('Test Todo with Due Date')
+      .closest('[data-testid^="todo-item-"]');
+    const todoId = todoItem?.getAttribute('data-testid')?.replace('todo-item-', '');
+
+    expect(todoId).toBeTruthy();
+    expect(screen.getByTestId(`todo-due-date-${todoId}`).textContent).toBe(
+      '2025-12-31T00:00:00.000Z'
+    );
+  });
+
+  it('can add a todo without due date', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <TodoProvider>
+        <TestComponent />
+      </TodoProvider>
+    );
+
+    await user.click(screen.getByTestId('add-todo'));
+
+    expect(screen.getByTestId('todo-count').textContent).toBe('1');
+
+    // Get the first todo's ID and check that no due date is set
+    const todoItem = screen.getByText('Test Todo').closest('[data-testid^="todo-item-"]');
+    const todoId = todoItem?.getAttribute('data-testid')?.replace('todo-item-', '');
+
+    expect(todoId).toBeTruthy();
+    expect(screen.getByTestId(`todo-due-date-${todoId}`).textContent).toBe('No due date');
   });
 });

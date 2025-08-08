@@ -46,7 +46,7 @@ export const loadTodos = (): Todo[] => {
     // Convert createdAt strings back to Date objects (only if they're strings)
     const todosWithDates = parsed.map(todo => ({
       ...todo,
-      createdAt: todo.createdAt instanceof Date ? todo.createdAt : new Date(todo.createdAt),
+      createdAt: typeof todo.createdAt === 'string' ? new Date(todo.createdAt) : todo.createdAt,
     }));
 
     return todosWithDates;

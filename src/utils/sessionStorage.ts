@@ -36,21 +36,20 @@ export const loadTodos = (): Todo[] => {
 
     const parsed = JSON.parse(stored);
 
-    // Convert createdAt strings back to Date objects
-    const todosWithDates = Array.isArray(parsed)
-      ? parsed.map(todo => ({
-          ...todo,
-          createdAt: new Date(todo.createdAt),
-        }))
-      : parsed;
-
-    if (isValidTodos(todosWithDates)) {
-      return todosWithDates;
-    } else {
+    // Validate the parsed data before processing
+    if (!isValidTodos(parsed)) {
       console.warn('Invalid todos data found in sessionStorage, clearing and starting fresh');
       window.sessionStorage.removeItem(STORAGE_KEY);
       return [];
     }
+
+    // Convert createdAt strings back to Date objects (only if they're strings)
+    const todosWithDates = parsed.map(todo => ({
+      ...todo,
+      createdAt: todo.createdAt instanceof Date ? todo.createdAt : new Date(todo.createdAt),
+    }));
+
+    return todosWithDates;
   } catch (error) {
     console.warn('Failed to load todos from sessionStorage:', error);
     // Clear corrupted data

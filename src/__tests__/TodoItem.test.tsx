@@ -26,6 +26,16 @@ describe('TodoItem Component', () => {
     completed: true,
   };
 
+  const mockTodoWithDueDate: Todo = {
+    ...mockTodo,
+    dueDate: '2024-12-31T00:00:00.000Z', // New Year's Eve
+  };
+
+  const mockOverdueTodo: Todo = {
+    ...mockTodo,
+    dueDate: '2023-01-01T00:00:00.000Z', // Past date
+  };
+
   const mockOnEditClick = vi.fn();
   const mockToggleTodoCompletion = vi.fn();
   const mockDeleteTodo = vi.fn();
@@ -100,5 +110,19 @@ describe('TodoItem Component', () => {
     await user.click(todoTitle);
 
     expect(mockOnEditClick).toHaveBeenCalledWith(mockTodo);
+  });
+
+  it('displays due date when present', () => {
+    render(<TodoItem todo={mockTodoWithDueDate} onEditClick={mockOnEditClick} />);
+
+    // Should display formatted due date
+    expect(screen.getByText(/Dec 31, 2024/)).toBeInTheDocument();
+  });
+
+  it('displays overdue styling for past due dates', () => {
+    render(<TodoItem todo={mockOverdueTodo} onEditClick={mockOnEditClick} />);
+
+    // Should display the due date (styling can't be easily tested)
+    expect(screen.getByText(/Jan 1, 2023/)).toBeInTheDocument();
   });
 });

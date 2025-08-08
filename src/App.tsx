@@ -1,5 +1,7 @@
 import './App.css';
 import { CssBaseline, Container, Box, Paper } from '@mui/material';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { AtlasThemeProvider } from './providers/ThemeProvider';
 import { TodoProvider } from './contexts/TodoContext';
 import { Header } from './components/Layout/Header';
@@ -70,9 +72,11 @@ function App() {
   return (
     <AtlasThemeProvider>
       <CssBaseline />
-      <TodoProvider>
-        <AppContent />
-      </TodoProvider>
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <TodoProvider>
+          <AppContent />
+        </TodoProvider>
+      </LocalizationProvider>
     </AtlasThemeProvider>
   );
 }

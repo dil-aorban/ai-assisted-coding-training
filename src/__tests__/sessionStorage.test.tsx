@@ -100,6 +100,58 @@ describe('sessionStorage utilities', () => {
 
       expect(isValidTodos(todosWithStringDates)).toBe(true);
     });
+
+    it('should return true for todos with valid due dates', () => {
+      const validTodos: Todo[] = [
+        {
+          id: '1',
+          title: 'Test Todo',
+          description: 'Test Description',
+          completed: false,
+          createdAt: new Date(),
+          dueDate: '2025-12-31T00:00:00.000Z',
+        },
+      ];
+
+      expect(isValidTodos(validTodos)).toBe(true);
+    });
+
+    it('should return true for todos without due dates', () => {
+      const validTodos: Todo[] = [
+        {
+          id: '1',
+          title: 'Test Todo',
+          description: 'Test Description',
+          completed: false,
+          createdAt: new Date(),
+        },
+      ];
+
+      expect(isValidTodos(validTodos)).toBe(true);
+    });
+
+    it('should return false for todos with invalid due dates', () => {
+      const invalidTodos = [
+        {
+          id: '1',
+          title: 'Test',
+          description: 'Test',
+          completed: false,
+          createdAt: new Date(),
+          dueDate: 'invalid-date',
+        },
+        {
+          id: '2',
+          title: 'Test',
+          description: 'Test',
+          completed: false,
+          createdAt: new Date(),
+          dueDate: 123, // should be string
+        },
+      ];
+
+      expect(isValidTodos(invalidTodos)).toBe(false);
+    });
   });
 
   describe('loadTodos', () => {

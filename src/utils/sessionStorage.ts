@@ -19,7 +19,10 @@ export const isValidTodos = (value: unknown): value is Todo[] => {
       typeof item.description === 'string' &&
       typeof item.completed === 'boolean' &&
       (item.createdAt instanceof Date ||
-        (typeof item.createdAt === 'string' && !isNaN(Date.parse(item.createdAt))))
+        (typeof item.createdAt === 'string' && !isNaN(Date.parse(item.createdAt)))) &&
+      // Add dueDate validation - optional, but if present, must be valid ISO 8601
+      (item.dueDate === undefined ||
+        (typeof item.dueDate === 'string' && !isNaN(Date.parse(item.dueDate))))
     );
   });
 };

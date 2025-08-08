@@ -39,7 +39,7 @@
 
 ### Task 1: Install Required Dependencies
 
-**Status**: TODO
+**Status**: DONE
 **Depends On**: None
 **Description**:
 Add the necessary date picker and formatting libraries to the project.
@@ -59,7 +59,7 @@ npm install @mui/x-date-pickers date-fns
 
 ### Task 2: Update Todo Type Definition
 
-**Status**: TODO
+**Status**: DONE
 **Depends On**: None
 **Description**:
 Extend the Todo interface to include the optional due date field as an ISO 8601 string.
@@ -85,7 +85,7 @@ export interface Todo {
 
 ### Task 3: Update SessionStorage Utilities
 
-**Status**: TODO
+**Status**: DONE
 **Depends On**: [2]
 **Description**:
 Modify storage validation and handling to support the new dueDate field while maintaining backward compatibility with existing stored todos.
@@ -120,7 +120,7 @@ return value.every(item => {
 
 ### Task 4: Setup LocalizationProvider
 
-**Status**: TODO
+**Status**: DONE
 **Depends On**: [1]
 **Description**:
 Wrap the application in LocalizationProvider to enable MUI date picker functionality.
@@ -150,7 +150,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 ### Task 5: Update TodoContext for Due Date Handling
 
-**Status**: TODO
+**Status**: DONE
 **Depends On**: [2]
 **Description**:
 Modify the addTodo and editTodo functions to handle the due date parameter.
@@ -185,7 +185,7 @@ const editTodo = (id: string, updates: Partial<Todo>) => {
 
 ### Task 6: Enhance TodoModal with Date Picker
 
-**Status**: TODO
+**Status**: DONE
 **Depends On**: [4, 5]
 **Description**:
 Add DatePicker component to the TodoModal for selecting due dates during create and edit operations.
@@ -243,7 +243,7 @@ if (mode === 'create') {
 
 ### Task 7: Display Due Dates in TodoItem
 
-**Status**: TODO
+**Status**: DONE
 **Depends On**: [1, 2]
 **Description**:
 Update TodoItem component to display due dates with appropriate formatting and visual indicators for overdue/due today items.
@@ -333,7 +333,7 @@ const formatDueDate = (dueDate?: string) => {
 
 ### Task 8: Update Unit Tests
 
-**Status**: TODO
+**Status**: DONE
 **Depends On**: [2, 3, 5, 6, 7]
 **Description**:
 Update all existing tests to handle the new dueDate field and add specific tests for due date functionality.
@@ -393,7 +393,7 @@ describe('sessionStorage with due dates', () => {
 
 ### Task 9: Integration Testing
 
-**Status**: TODO
+**Status**: DONE
 **Depends On**: [1, 2, 3, 4, 5, 6, 7, 8]
 **Description**:
 Perform end-to-end testing to ensure all components work together correctly and all acceptance criteria are met.

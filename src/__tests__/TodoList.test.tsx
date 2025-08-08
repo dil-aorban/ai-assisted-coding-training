@@ -28,6 +28,7 @@ describe('TodoList Component', () => {
       editTodo: vi.fn(),
       toggleTodoCompletion: vi.fn(),
       deleteTodo: vi.fn(),
+      storageError: null,
     });
 
     render(<TodoList onEditTodo={mockOnEditTodo} />);
@@ -62,6 +63,7 @@ describe('TodoList Component', () => {
       deleteTodo: vi.fn(),
       addTodo: vi.fn(),
       editTodo: vi.fn(),
+      storageError: null,
     });
 
     render(<TodoList onEditTodo={mockOnEditTodo} />);

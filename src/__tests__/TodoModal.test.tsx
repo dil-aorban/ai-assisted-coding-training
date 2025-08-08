@@ -23,6 +23,7 @@ describe('TodoModal Component', () => {
       todos: [],
       toggleTodoCompletion: vi.fn(),
       deleteTodo: vi.fn(),
+      storageError: null,
     });
   });
 

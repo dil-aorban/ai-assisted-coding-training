@@ -18,7 +18,8 @@ export const isValidTodos = (value: unknown): value is Todo[] => {
       typeof item.title === 'string' &&
       typeof item.description === 'string' &&
       typeof item.completed === 'boolean' &&
-      (item.createdAt instanceof Date || typeof item.createdAt === 'string')
+      (item.createdAt instanceof Date ||
+        (typeof item.createdAt === 'string' && !isNaN(Date.parse(item.createdAt))))
     );
   });
 };

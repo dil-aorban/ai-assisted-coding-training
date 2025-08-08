@@ -9,6 +9,7 @@ export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [todos, setTodos] = useState<Todo[]>(() => loadTodos());
   const [storageError, setStorageError] = useState<string | null>(null);
   const isFirstRender = useRef(true);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Persist todos to sessionStorage whenever they change
   useEffect(() => {
@@ -18,19 +19,26 @@ export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    // Clear any previous timeout before setting a new one
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
     const success = saveTodos(todos);
     if (!success) {
       setStorageError('Storage quota exceeded — your latest changes may not be saved.');
       // Clear error after 5 seconds
-      timeoutId = setTimeout(() => setStorageError(null), 5000);
+      timeoutRef.current = setTimeout(() => setStorageError(null), 5000);
     } else {
       // Clear error if save was successful
       setStorageError(null);
     }
+
     return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
       }
     };
   }, [todos]);

@@ -25,11 +25,13 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, onEditClick }) => {
 
     const due = new Date(dueDate);
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset time for accurate comparison
-    due.setHours(0, 0, 0, 0);
 
-    const isOverdue = due < today;
-    const isDueToday = due.getTime() === today.getTime();
+    // Create new Date objects with time set to midnight for comparison
+    const normalizedDue = new Date(due.getFullYear(), due.getMonth(), due.getDate());
+    const normalizedToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+    const isOverdue = normalizedDue < normalizedToday;
+    const isDueToday = normalizedDue.getTime() === normalizedToday.getTime();
 
     if (isOverdue) return 'error.main';
     if (isDueToday) return 'warning.main';
